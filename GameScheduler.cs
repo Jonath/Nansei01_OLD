@@ -55,9 +55,8 @@ public class GameScheduler : MonoBehaviour
 
         border.Init();
         border.obj.Scale = new Vector3(scale_factor, scale_factor);
-        //origin.position = border.obj.OBB.FL;
 
-        background.position = ComputePosition(new Vector3(-96, 0, 10));
+        background.position = ComputePosition(new Vector3(-96, 0, 50));
         background.localScale = ComputeScale(new Vector3(384, 448));
 
         dialogue.Init();
@@ -117,9 +116,10 @@ public class GameScheduler : MonoBehaviour
     // Compute positions, and scale for different resolutions
     public static Vector3 ComputePosition(Vector3 position) {
         Vector3 rapport = new Vector3(position.x / default_resolution.x,
-                                      position.y / default_resolution.y);
+                                      position.y / default_resolution.y,
+									  position.z);
 
-        position = new Vector3(rapport.x * cam_width, rapport.y * cam_height);
+		position = new Vector3(rapport.x * cam_width, rapport.y * cam_height, position.z);
         return position;
     }
 

@@ -7,6 +7,7 @@ public class Player : Entity {
     public static Player instance = null;     // Singleton
 
     public Animator animator;
+	public SpriteRenderer animatorRenderer;
 
     public AudioClip death_hit; // TODO : create an audio handler class
     public AudioClip death;     // TODO : create an audio handler class
@@ -18,6 +19,7 @@ public class Player : Entity {
     public Bounds clamping;
     public Shot shot;
 
+	public Bullet playerSprite;
     public GameObject bomb;
 
     public float focus_speed = 5;
@@ -88,6 +90,9 @@ public class Player : Entity {
 			option_data.options = new List<Bullet>();
 			option_data.positions = new List<Vector3>();
 
+			playerSprite = pool.AddBullet(animatorRenderer.sprite, EType.PLAYER, EMaterial.MIKO, obj.Position);
+			playerSprite.Scale = transform.lossyScale;
+
 			/* Init collection hitbox */
         
 			if (power_level >= 1) { 
@@ -124,8 +129,9 @@ public class Player : Entity {
         moveVertical = Input.GetAxis("Vertical");
 
         // Update appearance (if driven by sprite)
-        if(sprite != null && obj != null) {
-            obj = pool.ChangeBulletAppearance(obj, sprite, EMaterial.MIKO); // @TODO : make this class more generic
+		if(playerSprite != null) {
+			playerSprite = pool.ChangeBulletAppearance(playerSprite, animatorRenderer.sprite, EMaterial.MIKO); // @TODO : make this class more generic
+			playerSprite.Position = obj.Position;
         }
 
         if (!dead)

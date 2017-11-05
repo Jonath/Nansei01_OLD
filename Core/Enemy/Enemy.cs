@@ -27,7 +27,7 @@ public class Enemy : Entity {
             pool.RemoveBullet(obj);
 
 			StopAllCoroutines();
-			StartCoroutine(_DropItems(6, 4));
+			StartCoroutine(_DropItems(1, 1));
             //StartCoroutine(_DeathExplotion());
             dead = true;
         }
@@ -65,14 +65,25 @@ public class Enemy : Entity {
     }
 
 	public IEnumerator _DropItems(int nbPowerItems, int nbPointItems) {
-		float ang = 90;
+		int spriteAngularSpeed = 2;
 		for (int i = 0; i < nbPowerItems; ++i) {
-			Bullet powerItem = pool.AddBullet(power_item, EType.ITEM, EMaterial.GUI,
-										      obj.Position, 50, ang, -1);
-			ang += Random.Range (-20, 20);
-			StartCoroutine(powerItem._Change(0.75f, null, null, 0, null));
+			SpawnItem (power_item);
+		}
+
+		for (int i = 0; i < nbPowerItems; ++i) {
+			SpawnItem (point_item);
 		}
 
 		yield return new WaitForFixedUpdate ();
+	}
+
+	private void SpawnItem(Sprite sprite) {
+		float ang = 90;
+		Vector3 pos = obj.Position + Vector3.forward * 10;
+		Bullet item = pool.AddBullet(sprite, EType.ITEM, EMaterial.BULLETADD,
+								     pos, 50, ang, -1);
+		item.SpriteAngle = Vector3.forward * (ang - 90);
+		item.SpriteAngularVelocity = Vector3.forward * 2;;
+		StartCoroutine(item._Change(0.75f, null, null, 0, null));
 	}
 }

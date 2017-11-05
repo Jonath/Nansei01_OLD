@@ -86,9 +86,7 @@ public partial class MeshPool : MonoBehaviour {
             // Fonts
             _fonts[0].material
         };
-
-        _materials[(int)EMaterial.TEXT].renderQueue = 6000; // Can't set it in editor. Thus maybe do ordering logic similarly here, instead
-
+			
         //_mesh = new Mesh {subMeshCount = (int)EMaterial.COUNT, vertices = _vertices, normals = _normals, uv = _uvs, colors32 = _colors};
         _meshs = new Mesh[NbMaterials];
 
@@ -100,10 +98,6 @@ public partial class MeshPool : MonoBehaviour {
             _uvs[i] = new Vector2[MaxBullets * 4];
             _colors[i] = Enumerable.Repeat((Color32)Color.white, MaxBullets * 4).ToArray();
             _meshs[i] = new Mesh { vertices = _vertices[i], normals = _normals[i], uv = _uvs[i], colors32 = _colors[i] };
-
-            // Temporarily ordering renderers with order in array
-            MeshRenderers[i].sortingLayerName = SortingLayerName == "" ? "Screen" : SortingLayerName;
-            MeshRenderers[i].sortingOrder = OrderInLayer++;
         }
 
     }

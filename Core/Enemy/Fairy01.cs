@@ -24,7 +24,7 @@ public class Fairy01 : Enemy {
                                          obj.Position, speed, ang, 0, 0);
 
             shot.Radius = 5;
-            shot.SpriteAngle = new Vector3(0, 0, ang - 90);
+			shot.SpriteAngle = Vector3.forward * (ang - 90);
             shot.AutoDelete = true;
 
             bullets.Add(shot);

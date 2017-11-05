@@ -75,6 +75,7 @@ public partial class Bullet : ScriptableObject
 
     // Sprite angle
     public Vector3 SpriteAngle;
+	public Vector3 SpriteAngularVelocity;
 
     public float Speed;
 	public float MinSpeed;
@@ -196,6 +197,7 @@ public partial class Bullet : ScriptableObject
 		Speed = Speed + Acceleration;
         Position += dt * Speed * Direction;
         Angle += AngularVelocity;
+		SpriteAngle += SpriteAngularVelocity;
     }
 
     // This is used for physics
