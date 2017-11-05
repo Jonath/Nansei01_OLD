@@ -61,9 +61,8 @@ public class GameScheduler : MonoBehaviour
 
         dialogue.Init();
 
-        // Initialize player and quadtree
+        // Initialize player
         player.Init();
-        quadtree.SetPlayer(player);
 
         // Initialize bomb and life bars
         lifebar.Init();
@@ -88,12 +87,12 @@ public class GameScheduler : MonoBehaviour
 
         while(accumulator >= dt) {
             meshpool.UpdateAt(dt);			// Movement
-            //dialogue.UpdateAt(dt);
-            meshpool.CheckCollisions();		// Collisions
+			meshpool.ReferenceBullets();	// Reference bullets for collisions
 
-			// Reactions to movement and collision
+			// Collisions checks
+			player.UpdateAt();
 			for (int i = 0; i < enemies.Count; ++i) {
-				enemies[i].UpdateAt (dt);
+				enemies[i].UpdateAt(dt);
 			}
 
             accumulator -= dt;

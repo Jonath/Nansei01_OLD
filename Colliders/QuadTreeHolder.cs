@@ -7,9 +7,6 @@ public class QuadTreeHolder : MonoBehaviour {
     public static QuadTree quadtree = null;         // Singleton
     public Rect startingBounds;                     // Use this for initialization
 
-    public Bullet player_obj;
-    private Player player;
-
     private List<Bullet> bullets_buffer;
     private List<Bullet> bullets_close_player;
 
@@ -24,11 +21,6 @@ public class QuadTreeHolder : MonoBehaviour {
         bullets_buffer = new List<Bullet>();
     }
 
-    public void SetPlayer(Player p) {
-        player = p;
-		player_obj = p.obj;
-    }
-
     public void ResetQuadTree() {
         if(quadtree == null) {
             quadtree = new QuadTree(0, startingBounds, Color.red);
@@ -38,63 +30,31 @@ public class QuadTreeHolder : MonoBehaviour {
     }
 	
 	// Clear and re-add bullets to the QuadTree (maybe logic needs to be sorted out of the quadtree to avoid complexity)
-	public void CheckCollisions (List<Bullet> pool_bullets) {
-        ResetQuadTree();
+	public void ReferenceBullets (List<Bullet> pool_bullets) {
+		ResetQuadTree();
 
-        // If player has been removed for some reason, do not handle collisions
-        if(player == null) {
-            return;
-        }
+		foreach (Bullet bullet in pool_bullets) {
+			quadtree.Insert (bullet);
+		}
+	}
 
-        foreach (Bullet bullet in pool_bullets) {
-            quadtree.Insert(bullet);
-        }
+	public void CheckCollision(Player player) {
+		bullets_close_player.Clear();
+		if(player.obj != null && player.can_be_damaged) { // Optimisation
+			bullets_close_player = quadtree.Get(player.obj.AABB);
 
-        bullets_close_player.Clear();
-        if(player.can_be_damaged) { // Optimisation
-            bullets_close_player = quadtree.Get(player_obj.AABB);
-
-            // For each bullet close to the ennemy
-            for(int i = 0; i < bullets_close_player.Count && player.can_be_damaged; ++i) {
-                // Enemy collision => player loses a life
-                if((bullets_close_player[i].Type == EType.BULLET ||
-                    bullets_close_player[i].Type == EType.ENEMY) &&
-                    CircleCollision(bullets_close_player[i])) {
-                    player.life_bar.Remove();
-                    player.StartCoroutine(player._Shield(2f));
-                }
-            }
-        }
-
-        /*else if(player.bombing) {
-            // For each bomb component
-            for(int i = 0; i < player.bomb_components.Count; ++i) {
-                OBB OBB = OBB.GetOBB(player.bomb_components[i]);
-                Rect AABB = OBB.GetAABBFromOBB(player.bomb_components[i]);
-
-                bullets_buffer = quadtree.Get(AABB);
-                for(int j = 0; j < bullets_buffer.Count; ++j) {
-                    if (OBBCollision(OBB, bullets_buffer[j].OBB)) {
-                        StartCoroutine(bullet_pool._Fade(bullets_buffer[j], 0, 1.0f));
-                    }
-                }
-            }
-        }*/
-
-        // For each enemy referenced in the QuadTree
-        /*for (int i = 0; i < enemies.Count; ++i) {
-            if(enemies[i].obj != null) {
-                // Get a list of bullets overlapping the current enemy bounding rect
-                bullets_buffer = quadtree.Get(enemies[i].obj.AABB);
-                // For each bullet in the list we just got
-                for (int j = 0; j < bullets_buffer.Count; ++j) {
-                    if (bullets_buffer[j].Type == EType.SHOT) {
-                        enemies[i].life -= bullets_buffer[j].Damage;  // Add the damage of each bullet
-                    }
-                }
-            }
-        }*/
-    }
+			// For each bullet close to the ennemy
+			for(int i = 0; i < bullets_close_player.Count && player.can_be_damaged; ++i) {
+				// Enemy collision => player loses a life
+				if((bullets_close_player[i].Type == EType.BULLET ||
+					bullets_close_player[i].Type == EType.ENEMY) &&
+					CircleCollision(player.obj, bullets_close_player[i])) {
+					player.life_bar.Remove();
+					player.StartCoroutine(player._Shield(2f));
+				}
+			}
+		}
+	}
 
 	public void CheckCollision(Enemy enemy) {
 		if(enemy.obj != null) {
@@ -115,12 +75,12 @@ public class QuadTreeHolder : MonoBehaviour {
 	}
 
 	// Circle collision (between player and bullet @TODO generalize)
-    public bool CircleCollision(Bullet bullet) {
-        float diff_x = player_obj.Position.x - bullet.Position.x;
-        float diff_y = player_obj.Position.y - bullet.Position.y;
+    public static bool CircleCollision(Bullet obj1, Bullet obj2) {
+		float diff_x = obj1.Position.x - obj2.Position.x;
+		float diff_y = obj1.Position.y - obj2.Position.y;
 
         float dist_sqrt = (diff_x * diff_x) + (diff_y * diff_y);
-        float radius_sum = (player_obj.Radius + bullet.Radius);
+		float radius_sum = (obj1.Radius + obj2.Radius);
 
         return dist_sqrt <= radius_sum * radius_sum;
     }
@@ -266,13 +226,6 @@ public class QuadTreeHolder : MonoBehaviour {
             Gizmos.DrawLine(OBB.FR, OBB.BR);
             Gizmos.DrawLine(OBB.BR, OBB.BL);
             Gizmos.DrawLine(OBB.BL, OBB.FL);
-        }
-
-        if(player_obj != null) {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(player_obj.AABB.center, player_obj.AABB.size);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(player_obj.Position, player_obj.Radius);
         }
     }
 }

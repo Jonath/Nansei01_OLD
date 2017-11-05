@@ -62,8 +62,7 @@ public class Player : Entity {
         public List<Bullet> options;
     }
 
-    public override void Init()
-    {
+    public override void Init() {
         // Set instance to this object
         if (instance == null) {
             instance = this;
@@ -111,8 +110,7 @@ public class Player : Entity {
 		}
     }
 
-    public void UpdateAt()
-    {
+    public void UpdateAt() {
         // TODO input handler class
         if (Input.GetKeyDown("c")) {
             pool.AddLaser(laser_sprite, EType.SHOT, EMaterial.BULLETADD, curve, 25, 200, 5, obj.Position, 20, 50); // temporary test
@@ -129,28 +127,26 @@ public class Player : Entity {
 
         if (!dead)
         {
-            ManageMovment();
+            ManageMovement();
+			pool.QuadTreeHolder.CheckCollision(this);
             if (power_level >= 1) { // Wrong logic
                 UpdateOptions();
             }
         }
     }
 
-    void Destroy()
-    {
+    void Destroy() {
         instance = null;
         Destroy(gameObject);
     }
 
-    public void Die()
-    {
+    public void Die() {
         dead = true;
         AudioManager.instance.PlaySingle(death_hit);
         AudioManager.instance.StopMusic();
     }
 
-    private void ManageMovment()
-    {
+	private void ManageMovement() {
         // If I can't move, no movement handling
         if(!can_move) {
             moving = false;
@@ -192,8 +188,7 @@ public class Player : Entity {
         }
     }
 
-    void SpawnOptions()
-    {
+    void SpawnOptions() {
         foreach(Vector3 position in default_option_data[power_level-1].positions) {
             Bullet option_bullet = pool.AddBullet(option, EType.PLAYER, EMaterial.MIKO, // TODO : make this class more generic
                                                   obj.Position + position, 0, 0, 0, (position.x < 0) ? 1 : -1);
@@ -277,4 +272,13 @@ public class Player : Entity {
 
         yield break;
     }
+
+	void OnDrawGizmo() {
+		if (obj != null) {
+			Gizmos.color = Color.green;
+			Gizmos.DrawWireCube (obj.AABB.center, obj.AABB.size);
+			Gizmos.color = Color.red;
+			Gizmos.DrawWireSphere (obj.Position, obj.Radius);
+		}
+	}
 }

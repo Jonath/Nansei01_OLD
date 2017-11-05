@@ -236,8 +236,8 @@ public partial class MeshPool : MonoBehaviour
         SetMesh();
     }
 
-    public void CheckCollisions() {
-        QuadTreeHolder.CheckCollisions(_active);
+    public void ReferenceBullets() {
+		QuadTreeHolder.ReferenceBullets(_active);
     }
 
     void SetMesh()
