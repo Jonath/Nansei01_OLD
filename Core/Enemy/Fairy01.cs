@@ -20,8 +20,8 @@ public class Fairy01 : Enemy {
     public void Circle(float n, float speed, float offset) {
         for(float i = 0; i < 360; i += 360 / n) {
             float ang = i + offset;
-            Bullet shot = bullet_pool.AddBullet(bullet, EType.BULLET, EMaterial.BULLET,
-                                                obj.Position, speed, ang, 0, 0);
+			Bullet shot = pool.AddBullet(bullet, EType.BULLET, EMaterial.BULLET,
+                                         obj.Position, speed, ang, 0, 0);
 
             shot.Radius = 5;
             shot.SpriteAngle = new Vector3(0, 0, ang - 90);

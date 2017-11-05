@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 [ExecuteInEditMode]
 public class Enemy : Entity {
-    public MeshPool bullet_pool;    // The mesh pool for bullets
-    public MeshPool effect_pool;    // The mesh pool for special effects
+	public Sprite power_item;
+	public Sprite point_item;
 
     public Sprite death_effect;     // The effect used for coroutine DeathEffect
     public Color death_color;       // Color used for coroutine DeathEffect
@@ -27,6 +27,7 @@ public class Enemy : Entity {
             pool.RemoveBullet(obj);
 
 			StopAllCoroutines();
+			StartCoroutine(_DropItems(6, 4));
             //StartCoroutine(_DeathExplotion());
             dead = true;
         }
@@ -36,9 +37,8 @@ public class Enemy : Entity {
 		pool.QuadTreeHolder.CheckCollision(this);
 	}
 
-    public IEnumerator _DeathExplotion()
-    {
-        Bullet effect = effect_pool.AddBullet(death_effect, EType.EFFECT, EMaterial.GUI, obj.Position); // TODO : replace with appropriate enemy material / texture
+    public IEnumerator _DeathExplotion() {
+		Bullet effect = pool.AddBullet(death_effect, EType.EFFECT, EMaterial.GUI, obj.Position); // TODO : replace with appropriate enemy material / texture
 
         float scale = 1;
         float spin = 0;
@@ -61,6 +61,18 @@ public class Enemy : Entity {
             yield return new WaitForFixedUpdate();
         }
 
-        effect_pool.RemoveBullet(effect);
+		pool.RemoveBullet(effect);
     }
+
+	public IEnumerator _DropItems(int nbPowerItems, int nbPointItems) {
+		float ang = 90;
+		for (int i = 0; i < nbPowerItems; ++i) {
+			Bullet powerItem = pool.AddBullet(power_item, EType.ITEM, EMaterial.GUI,
+										      obj.Position, 50, ang, -1);
+			ang += Random.Range (-20, 20);
+			StartCoroutine(powerItem._Change(0.75f, null, null, 0, null));
+		}
+
+		yield return new WaitForFixedUpdate ();
+	}
 }

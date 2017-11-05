@@ -4,11 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 // Add as many items as materials / fonts (in rendering order)
-public enum EMaterial { MIKO, BULLET, BULLETADD, BORDER, GUI, DIALOGUE, TEXT, COUNT }
+public enum EMaterial { MIKO, BULLET, BULLETADD, BORDER, GUI, DIALOGUE, TEXT, COUNT, NEUTRAL }
 
 [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter)), ExecuteInEditMode]
-public partial class MeshPool : MonoBehaviour
-{
+public partial class MeshPool : MonoBehaviour {
     public int BulletCount;
     public MeshRenderer[] MeshRenderers;
     public MeshFilter[] MeshFilters;
@@ -213,20 +212,21 @@ public partial class MeshPool : MonoBehaviour
         _temp = new List<Bullet>();
 
         foreach (Bullet bullet in _active) {
-            int MaterialIdx = (int)bullet.Material;
-            if ((bullet.Lifetime.HasValue && bullet.CurrentTime >= bullet.Lifetime.Value) ||
-				((bullet.Type == EType.BULLET || bullet.Type == EType.SHOT) && !bullet.AABB.Overlaps(QuadTreeHolder.quadtree.rect))) {
+			// Check if the bullet has expired
+			bool removed = HandleBulletLifeTime(bullet);
 
-                RemoveBullet(bullet);
-                continue;
-            }
+			if (removed == false) {
+				// Check events registered in a bullet (change of position, angle, speed, acceleration, etc.)
 
-            // A bullet will be updated by the group element if it is part of one
-            if (bullet.Owner != EOwner.GROUP) {
-                bullet.ComputePosition(_vertices[MaterialIdx], _colors[MaterialIdx], dt);
-            }
 
-            _temp.Add(bullet);
+				// Update bullets position if they are not part of a group
+				if (bullet.Owner != EOwner.GROUP) {
+					int MaterialIdx = (int)bullet.Material;
+					bullet.ComputePosition(_vertices [MaterialIdx], _colors [MaterialIdx], dt);
+				}
+
+				_temp.Add (bullet);
+			}
         }
 
         _active = _temp;
@@ -235,13 +235,12 @@ public partial class MeshPool : MonoBehaviour
         // Maybe only call that once before rendering
         SetMesh();
     }
-
+		
     public void ReferenceBullets() {
 		QuadTreeHolder.ReferenceBullets(_active);
     }
 
-    void SetMesh()
-    {
+    void SetMesh() {
         for (int i = 0; i < (int)EMaterial.COUNT; ++i) {
             _meshs[i].vertices = _vertices[i];
             if (_indices != null) {
@@ -256,14 +255,15 @@ public partial class MeshPool : MonoBehaviour
         }
     }
 
-    void OnDrawGizmos() {
-        foreach(Bullet bullet in _active)
-        {
-            if(bullet.Type == EType.BULLET || bullet.Type == EType.ENEMY) {
-                Gizmos.color = Color.red;
-                Gizmos.DrawWireSphere(bullet.Position, bullet.Radius);
-            }
-        }
-    }
+	private bool HandleBulletLifeTime(Bullet bullet) {
+		bool removed = false;
+		if ((bullet.Lifetime.HasValue && bullet.CurrentTime >= bullet.Lifetime.Value) ||
+			((bullet.Type == EType.BULLET || bullet.Type == EType.SHOT) && !bullet.AABB.Overlaps(QuadTreeHolder.quadtree.rect))) {
+
+			RemoveBullet(bullet);
+			removed = true;
+		}
+		return removed;
+	}
 }
 

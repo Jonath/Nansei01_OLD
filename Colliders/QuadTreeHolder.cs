@@ -11,6 +11,7 @@ public class QuadTreeHolder : MonoBehaviour {
     private List<Bullet> bullets_close_player;
 
     public MeshPool bullet_pool; // to remove bullets
+	public Player	player;
 
     public bool trap;
 
@@ -51,6 +52,10 @@ public class QuadTreeHolder : MonoBehaviour {
 					CircleCollision(player.obj, bullets_close_player[i])) {
 					player.life_bar.Remove();
 					player.StartCoroutine(player._Shield(2f));
+				}
+
+				if((bullets_close_player[i].Type == EType.ITEM)) {
+
 				}
 			}
 		}
@@ -217,15 +222,20 @@ public class QuadTreeHolder : MonoBehaviour {
         List<Bullet> bullets = bullet_pool.GetBullets();
 
         for (int i = 0; i < bullets.Count; i++) {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(bullets[i].AABB.center, bullets[i].AABB.size);
+			Gizmos.color = Color.yellow;
+			OBB OBB = bullets[i].OBB;
+			Gizmos.DrawLine (OBB.FL, OBB.FR);
+			Gizmos.DrawLine (OBB.FR, OBB.BR);
+			Gizmos.DrawLine (OBB.BR, OBB.BL);
+			Gizmos.DrawLine (OBB.BL, OBB.FL);
 
-            Gizmos.color = Color.yellow;
-            OBB OBB = bullets[i].OBB;
-            Gizmos.DrawLine(OBB.FL, OBB.FR);
-            Gizmos.DrawLine(OBB.FR, OBB.BR);
-            Gizmos.DrawLine(OBB.BR, OBB.BL);
-            Gizmos.DrawLine(OBB.BL, OBB.FL);
+			Gizmos.color = Color.green;
+			Gizmos.DrawWireCube (bullets[i].AABB.center, bullets[i].AABB.size);
         }
+			
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere (player.obj.Position, player.obj.Radius);
+		Gizmos.color = Color.blue;
+		Gizmos.DrawWireSphere (player.obj.Position, player.collectHitboxRadius);
     }
 }

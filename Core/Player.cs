@@ -22,6 +22,7 @@ public class Player : Entity {
 
     public float focus_speed = 5;
     public float unfocus_speed = 10;
+	public float collectHitboxRadius = 50;
 
     public int power_level;
     public Sprite option;
@@ -86,6 +87,8 @@ public class Player : Entity {
 			option_data = new OptionData();
 			option_data.options = new List<Bullet>();
 			option_data.positions = new List<Vector3>();
+
+			/* Init collection hitbox */
         
 			if (power_level >= 1) { 
 				SpawnOptions ();
@@ -122,7 +125,7 @@ public class Player : Entity {
 
         // Update appearance (if driven by sprite)
         if(sprite != null && obj != null) {
-            obj = pool.ChangeBulletAppearance(obj, sprite, EMaterial.MIKO); // TODO : make this class more generic
+            obj = pool.ChangeBulletAppearance(obj, sprite, EMaterial.MIKO); // @TODO : make this class more generic
         }
 
         if (!dead)
@@ -190,7 +193,7 @@ public class Player : Entity {
 
     void SpawnOptions() {
         foreach(Vector3 position in default_option_data[power_level-1].positions) {
-            Bullet option_bullet = pool.AddBullet(option, EType.PLAYER, EMaterial.MIKO, // TODO : make this class more generic
+			Bullet option_bullet = pool.AddBullet(option, EType.OPTION, EMaterial.MIKO, // TODO : make this class more generic
                                                   obj.Position + position, 0, 0, 0, (position.x < 0) ? 1 : -1);
             option_bullet.Color = new Color32(255, 255, 255, 125);
             option_bullet.Scale = new Vector3(option_scale, option_scale);
@@ -272,13 +275,4 @@ public class Player : Entity {
 
         yield break;
     }
-
-	void OnDrawGizmo() {
-		if (obj != null) {
-			Gizmos.color = Color.green;
-			Gizmos.DrawWireCube (obj.AABB.center, obj.AABB.size);
-			Gizmos.color = Color.red;
-			Gizmos.DrawWireSphere (obj.Position, obj.Radius);
-		}
-	}
 }

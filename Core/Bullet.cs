@@ -77,6 +77,7 @@ public partial class Bullet : ScriptableObject
     public Vector3 SpriteAngle;
 
     public float Speed;
+	public float MinSpeed;
     public float Acceleration;
     public float AngularVelocity;
 
@@ -113,6 +114,13 @@ public partial class Bullet : ScriptableObject
 
     // Usually not to be modified by hand
     public float CurrentTime { get; set; }
+
+	public void CopyData(float ? speed, float ? angle, float ? acc, float ? ang_vec) {
+		if (speed.HasValue) { Speed = speed.Value; }
+		if (angle.HasValue) { Angle = angle.Value; }
+		if (acc.HasValue) { Acceleration = acc.Value; }
+		if (ang_vec.HasValue) { AngularVelocity = ang_vec.Value; }
+	}
 
     public void CopyData(Sprite sprite, EType type, EMaterial material,
                          Vector3 position, float speed = 0, float angle = 0, float acc = 0, float ang_vec = 0) {
@@ -185,6 +193,7 @@ public partial class Bullet : ScriptableObject
     protected void UpdateState(float dt = 0) {
         CurrentTime += dt;
         PreviousPosition = Position;
+		Speed = Speed + Acceleration;
         Position += dt * Speed * Direction;
         Angle += AngularVelocity;
     }
@@ -230,7 +239,7 @@ public partial class Bullet : ScriptableObject
 
         _colors[offset] = _colors[offset + 1] = _colors[offset + 2] = _colors[offset + 3] = Color;
     }
-
+		
     public IEnumerator _Bind(Transform transform) {
         while (Active) {
             Position = transform.position;
@@ -249,4 +258,9 @@ public partial class Bullet : ScriptableObject
             yield return new WaitForSeconds(GameScheduler.dt);
         }
     }
+
+	public IEnumerator _Change(float timeToWait, float ? speed, float ? angle, float ? acc, float ? ang_vec) {
+		yield return new WaitForSeconds(timeToWait);
+		CopyData(speed, angle, acc, ang_vec);
+	}
 }

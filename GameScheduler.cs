@@ -36,8 +36,9 @@ public class GameScheduler : MonoBehaviour
 
     public bool InDialogue;
 
+	private 
+
     // Charged to initialize every other script in the right order.
-    [ExecuteInEditMode]
     void OnEnable() {
         // Set instance to this object
         if (instance == null) {
@@ -63,6 +64,7 @@ public class GameScheduler : MonoBehaviour
 
         // Initialize player
         player.Init();
+		quadtree.player = player;
 
         // Initialize bomb and life bars
         lifebar.Init();
